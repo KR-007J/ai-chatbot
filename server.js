@@ -174,52 +174,100 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
   }
 });
 
-// Gemini AI integration endpoint - UPDATED TO GEMINI 2.0 FLASH
+// Gemini AI integration endpoint - USING GEMINI 2.5 FLASH (BEST MODEL)
 app.post('/api/gemini', async (req, res) => {
   try {
     const { prompt } = req.body;
-    
-    // Use server-side API key from environment variable
     const apiKey = process.env.GEMINI_API_KEY;
     
     if (!apiKey) {
       return res.status(500).json({ error: 'Server API key not configured' });
     }
 
-    // Using Gemini 2.0 Flash (fastest and most efficient)
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }]
-      })
-    });
+    // Best models from your available list, in order of preference
+    const models = [
+      'gemini-2.5-flash',           // 🏆 BEST - Latest, fastest, most balanced
+      'gemini-2.5-pro',             // 🥈 Better quality, slower
+      'gemini-2.0-flash',           // 🥉 Stable alternative
+      'gemini-2.0-flash-001',       // Backup
+      'gemini-flash-latest',        // Generic latest
+    ];
 
-    const data = await response.json();
-    
-    if (data.error) {
-      throw new Error(data.error.message);
+    let lastError = null;
+
+    for (const model of models) {
+      try {
+        console.log(`🤖 Trying model: ${model}`);
+        
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{
+                parts: [{
+                  text: prompt
+                }]
+              }],
+              generationConfig: {
+                temperature: 0.7,
+                topK: 40,
+                topP: 0.95,
+                maxOutputTokens: 8192,
+              }
+            })
+          }
+        );
+
+        const data = await response.json();
+        
+        if (data.error) {
+          console.log(`❌ Model ${model} failed: ${data.error.message}`);
+          lastError = data.error.message;
+          continue;
+        }
+
+        if (!data.candidates || !data.candidates[0] || !data.candidates[0].content) {
+          console.log(`❌ Model ${model} returned invalid response`);
+          lastError = 'Invalid response structure';
+          continue;
+        }
+
+        // Success!
+        console.log(`✅ Success with model: ${model}`);
+        return res.json({
+          success: true,
+          response: data.candidates[0].content.parts[0].text,
+          model: model
+        });
+
+      } catch (error) {
+        console.log(`❌ Model ${model} error: ${error.message}`);
+        lastError = error.message;
+        continue;
+      }
     }
 
-    res.json({
-      success: true,
-      response: data.candidates[0].content.parts[0].text
-    });
+    // All models failed
+    throw new Error(`All models failed. Last error: ${lastError}`);
+
   } catch (error) {
     console.error('Gemini API error:', error);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ 
+      error: error.message,
+      hint: 'Please check your Gemini API key and quota at https://aistudio.google.com/apikey'
+    });
   }
 });
 
 // Health check endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Server is running' });
+  res.json({ 
+    status: 'ok', 
+    message: 'Server is running',
+    model: 'gemini-2.5-flash'
+  });
 });
 
 // Serve index.html for root path
@@ -237,5 +285,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Smart Study Assistant running on port ${PORT}`);
   console.log(`📁 Public directory: ${path.join(__dirname, 'public')}`);
-  console.log(`🤖 Using Gemini 2.0 Flash model`);
+  console.log(`🤖 Using Gemini 2.5 Flash (Best Model)`);
 });

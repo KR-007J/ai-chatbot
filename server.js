@@ -17,7 +17,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 
 // Session configuration
 app.use(session({
@@ -40,7 +40,6 @@ passport.use(new GoogleStrategy({
     callbackURL: process.env.CALLBACK_URL || 'http://localhost:3000/auth/google/callback'
   },
   function(accessToken, refreshToken, profile, cb) {
-    // In production, save user to database
     return cb(null, profile);
   }
 ));
@@ -71,7 +70,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({ 
   storage: storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowedTypes = /pdf|png|jpg|jpeg|txt/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -120,7 +119,7 @@ app.get('/auth/user', (req, res) => {
   }
 });
 
-// Helper function to extract text from PDF
+// Helper functions
 async function extractTextFromPDF(filePath) {
   try {
     const dataBuffer = fs.readFileSync(filePath);
@@ -131,7 +130,6 @@ async function extractTextFromPDF(filePath) {
   }
 }
 
-// Helper function to extract text from image using OCR
 async function extractTextFromImage(filePath) {
   try {
     const { data: { text } } = await Tesseract.recognize(filePath, 'eng', {
@@ -215,11 +213,24 @@ app.post('/api/gemini', async (req, res) => {
   }
 });
 
-// Serve index.html
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Server is running' });
+});
+
+// Serve index.html for root path
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`🚀 Smart Study Assistant running on http://localhost:${PORT}`);
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).json({ error: 'Internal server error' });
+});
+
+// Start server
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Smart Study Assistant running on port ${PORT}`);
+  console.log(`📁 Public directory: ${path.join(__dirname, 'public')}`);
 });

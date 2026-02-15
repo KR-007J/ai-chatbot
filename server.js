@@ -26,7 +26,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: { 
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
@@ -174,7 +174,7 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
   }
 });
 
-// Gemini AI integration endpoint
+// Gemini AI integration endpoint - UPDATED TO GEMINI 2.0 FLASH
 app.post('/api/gemini', async (req, res) => {
   try {
     const { prompt } = req.body;
@@ -186,7 +186,8 @@ app.post('/api/gemini', async (req, res) => {
       return res.status(500).json({ error: 'Server API key not configured' });
     }
 
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+    // Using Gemini 2.0 Flash (fastest and most efficient)
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -236,4 +237,5 @@ app.use((err, req, res, next) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Smart Study Assistant running on port ${PORT}`);
   console.log(`📁 Public directory: ${path.join(__dirname, 'public')}`);
+  console.log(`🤖 Using Gemini 2.0 Flash model`);
 });

@@ -177,10 +177,13 @@ app.post('/api/upload', upload.single('file'), async (req, res) => {
 // Gemini AI integration endpoint
 app.post('/api/gemini', async (req, res) => {
   try {
-    const { prompt, apiKey } = req.body;
+    const { prompt } = req.body;
+    
+    // Use server-side API key from environment variable
+    const apiKey = process.env.GEMINI_API_KEY;
     
     if (!apiKey) {
-      return res.status(400).json({ error: 'API key is required' });
+      return res.status(500).json({ error: 'Server API key not configured' });
     }
 
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {

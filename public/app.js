@@ -1,6 +1,5 @@
 // Global state
 let currentNotes = '';
-let apiKey = localStorage.getItem('gemini_api_key') || '';
 let currentUser = null;
 
 // Initialize particles
@@ -64,32 +63,6 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
     window.location.href = '/auth/logout';
 });
 
-// Settings panel
-document.getElementById('settingsBtn').addEventListener('click', () => {
-    document.getElementById('settingsPanel').classList.add('open');
-});
-
-document.getElementById('closeSettings').addEventListener('click', () => {
-    document.getElementById('settingsPanel').classList.remove('open');
-});
-
-document.getElementById('saveApiKey').addEventListener('click', () => {
-    const key = document.getElementById('apiKeyInput').value.trim();
-    if (key) {
-        localStorage.setItem('gemini_api_key', key);
-        apiKey = key;
-        showToast('API key saved successfully!', 'success');
-        document.getElementById('settingsPanel').classList.remove('open');
-    } else {
-        showToast('Please enter a valid API key', 'error');
-    }
-});
-
-// Load saved API key
-if (apiKey) {
-    document.getElementById('apiKeyInput').value = apiKey;
-}
-
 // File upload handling
 const uploadArea = document.getElementById('uploadArea');
 const fileInput = document.getElementById('fileInput');
@@ -119,12 +92,6 @@ fileInput.addEventListener('change', (e) => {
 });
 
 async function handleFileUpload(file) {
-    if (!apiKey) {
-        showToast('Please set your Gemini API key in settings first', 'error');
-        document.getElementById('settingsPanel').classList.add('open');
-        return;
-    }
-
     const formData = new FormData();
     formData.append('file', file);
 
@@ -173,16 +140,12 @@ async function handleFileUpload(file) {
 
 // Gemini API call
 async function callGeminiAPI(prompt) {
-    if (!apiKey) {
-        throw new Error('API key not set');
-    }
-
     const response = await fetch('/api/gemini', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ prompt, apiKey })
+        body: JSON.stringify({ prompt })
     });
 
     const data = await response.json();
@@ -309,7 +272,6 @@ function displayQuestions(questions) {
 
 function toggleAnswer(element) {
     const answerContent = element.nextElementSibling;
-    const icon = element.querySelector('i');
     
     if (answerContent.style.display === 'none') {
         answerContent.style.display = 'block';
@@ -504,7 +466,7 @@ function displayTimetable(text) {
     container.innerHTML = '';
 
     days.forEach((day, index) => {
-        if (index === 0) return; // Skip first empty split
+        if (index === 0) return;
         
         const lines = day.trim().split('\n');
         const title = lines[0];

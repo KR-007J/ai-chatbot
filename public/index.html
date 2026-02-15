@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Study Assistant - AI-Powered Learning </title>
+    <title>Smart Study Assistant - AI-Powered Learning</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
@@ -65,36 +65,10 @@
             </div>
         </section>
 
-        <!-- Settings Panel -->
-        <div class="settings-panel" id="settingsPanel">
-            <div class="settings-header">
-                <h3><i class="fas fa-cog"></i> API Settings</h3>
-                <button class="close-btn" id="closeSettings"><i class="fas fa-times"></i></button>
-            </div>
-            <div class="settings-content">
-                <div class="form-group">
-                    <label>
-                        <i class="fas fa-key"></i> Gemini API Key
-                        <a href="https://makersuite.google.com/app/apikey" target="_blank" class="help-link">
-                            Get API Key <i class="fas fa-external-link-alt"></i>
-                        </a>
-                    </label>
-                    <input type="password" id="apiKeyInput" placeholder="Enter your Gemini API key">
-                    <small>Your API key is stored locally and never sent to our servers</small>
-                </div>
-                <button class="btn-primary" id="saveApiKey">
-                    <i class="fas fa-save"></i> Save API Key
-                </button>
-            </div>
-        </div>
-
         <!-- Upload Section -->
         <section class="upload-section card">
             <div class="section-header">
                 <h2><i class="fas fa-cloud-upload-alt"></i> Upload Your Study Material</h2>
-                <button class="btn-icon" id="settingsBtn" title="Settings">
-                    <i class="fas fa-cog"></i>
-                </button>
             </div>
             <div class="upload-area" id="uploadArea">
                 <input type="file" id="fileInput" accept=".pdf,.png,.jpg,.jpeg,.txt" hidden>
@@ -265,13 +239,31 @@
     <!-- Notification Toast -->
     <div id="toast" class="toast"></div>
 
-    <script src="app.js"></script>
     <!-- Footer -->
-    <footer style="text-align: center; padding: 2rem; color: var(--gray); margin-top: 4rem; border-top: 1px solid rgba(255,255,255,0.1);">
-        <p style="font-size: 0.9rem;">Made with ❤️ by <strong style="color: var(--primary);">Krish Joshi</strong></p>
-        <p style="font-size: 0.8rem; margin-top: 0.5rem;">Smart Study Assistant © 2026</p>
+    <footer style="background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border-top: 1px solid rgba(255,255,255,0.1); padding: 2rem; margin-top: 4rem;">
+        <div style="max-width: 1400px; margin: 0 auto; text-align: center;">
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="color: var(--primary); margin-bottom: 0.5rem;">
+                    <i class="fas fa-code"></i> Developed by Krish Joshi
+                </h3>
+                <p style="color: var(--gray);">AI-Powered Learning Platform</p>
+            </div>
+            
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem;">
+                <a href="https://github.com/KR-007J" target="_blank" style="color: var(--light); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--light)'">
+                    <i class="fab fa-github"></i> GitHub
+                </a>
+                <a href="mailto:krish.joshi@example.com" style="color: var(--light); text-decoration: none; transition: color 0.3s;" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--light)'">
+                    <i class="fas fa-envelope"></i> Email
+                </a>
+            </div>
+            
+            <p style="color: var(--gray); font-size: 0.9rem;">
+                © 2026 Krish Joshi. All rights reserved. | Made with ❤️ for students
+            </p>
+        </div>
     </footer>
 
-</body>
+    <script src="app.js"></script>
 </body>
 </html>
